@@ -11,9 +11,8 @@ const CalendarComponent = () => {
     symptoms: "",
     meal: "",
   });
-  const [markedDates, setMarkedDates] = useState({}); // State för markerade datum
+  const [markedDates, setMarkedDates] = useState({});
 
-  // Hämta datumen från backend när komponenten renderas
   useEffect(() => {
     fetchData();
   }, []);
@@ -22,7 +21,7 @@ const CalendarComponent = () => {
     try {
       // Hämta datumen från din backend
       const response = await fetch(
-        "http://localhost:3000/api/dates-with-entries"
+        "http://192.168.1.82:3000/api/dates-with-entries"
       );
       const data = await response.json();
 
@@ -47,7 +46,7 @@ const CalendarComponent = () => {
     try {
       const formattedDate = formatDate(logData.date);
 
-      const response = await fetch("http://localhost:3000/api/add-entry", {
+      const response = await fetch("http://192.168.1.82:3000/api/add-entry", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,10 +59,8 @@ const CalendarComponent = () => {
       const data = await response.json();
       console.log("Data saved:", data);
 
-      // Uppdatera markerade datum
       setMarkedDates({ ...markedDates, [formattedDate]: { marked: true } });
 
-      // Clear form fields after successful save
       setLogData({
         id: 0,
         entry_id: 0,
@@ -78,7 +75,6 @@ const CalendarComponent = () => {
   };
 
   const formatDate = (date) => {
-    // Implementera formateringsfunktion för datum här om det behövs
     return date;
   };
 
@@ -88,7 +84,7 @@ const CalendarComponent = () => {
         onDayPress={(day) => {
           handleChange("date", day.dateString);
         }}
-        markedDates={markedDates} // Använd markedDates för att visa markerade datum
+        markedDates={markedDates}
       />
       <View style={styles.formContainer}>
         <TextInput

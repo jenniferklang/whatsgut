@@ -4,6 +4,7 @@ var path = require("path");
 var cors = require("cors");
 var dotenv = require("dotenv");
 var { Client } = require("pg");
+require("dotenv").config();
 dotenv.config();
 
 var app = express();
@@ -11,7 +12,8 @@ var app = express();
 var port = process.env.PORT || 3000;
 
 var client = new Client({
-  connectionString: process.env.PGURI_NEW,
+  connectionString: process.env.DATABASE_URL,
+  password: process.env.DB_PASSWORD,
 });
 client.connect();
 
