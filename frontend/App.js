@@ -4,17 +4,19 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import HomeScreen from "./screens/HomeScreen";
-import DetailsScreen from "./screens/DetailsScreen";
+// import DetailsScreen from "./screens/DetailsScreen";
 import CalendarScreen from "./screens/CalendarScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import ExerciseScreen from "./screens/ExerciseScreen";
+import MyProfileScreen from "./screens/MyProfileScreen";
 import styles from "./AppStyles";
 
 const homeName = "Home";
-const detailsName = "Details";
+// const detailsName = "Details";
 const calendarName = "Calendar";
 const settingsName = "Settings";
 const exerciseName = "Exercise";
+const myprofileName = "MyProfile";
 
 const Tab = createBottomTabNavigator();
 
@@ -30,14 +32,16 @@ const App = () => {
 
             if (rn === homeName) {
               iconName = focused ? "home" : "home-outline";
-            } else if (rn === detailsName) {
-              iconName = focused ? "list" : "list-outline";
+              // } else if (rn === detailsName) {
+              //   iconName = focused ? "list" : "list-outline";
             } else if (rn === calendarName) {
               iconName = focused ? "calendar" : "calendar-outline";
             } else if (rn === settingsName) {
               iconName = focused ? "settings" : "settings-outline";
             } else if (rn === exerciseName) {
               iconName = focused ? "barbell" : "barbell-outline";
+            } else if (rn === myprofileName) {
+              iconName = focused ? "person-circle" : "person-circle-outline";
             }
 
             return <Ionicons name={iconName} size={size} color={color} />;
@@ -53,7 +57,8 @@ const App = () => {
         <Tab.Screen name={exerciseName} component={ExerciseScreen} />
         <Tab.Screen name={calendarName} component={CalendarScreen} />
         <Tab.Screen name={settingsName} component={SettingsScreen} />
-        <Tab.Screen name={detailsName} component={DetailsScreen} />
+        {/* <Tab.Screen name={detailsName} component={DetailsScreen} /> */}
+        <Tab.Screen name={myprofileName} component={MyProfileScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

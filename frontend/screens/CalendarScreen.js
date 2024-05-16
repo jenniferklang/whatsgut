@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { View, TextInput, Button, StyleSheet } from "react-native";
 import { Calendar } from "react-native-calendars";
+import { useNavigation } from "@react-navigation/native";
 
 const CalendarComponent = () => {
+  const navigation = useNavigation();
+
+  const navigateToProfile = () => {
+    navigation.navigate("MyProfile");
+  };
+
   const [logData, setLogData] = useState({
     id: 0,
     entry_id: 0,
@@ -19,19 +26,16 @@ const CalendarComponent = () => {
 
   const fetchData = async () => {
     try {
-      // Hämta datumen från din backend
       const response = await fetch(
         "http://192.168.1.82:3000/api/dates-with-entries"
       );
       const data = await response.json();
 
-      // Skapa ett objekt där datumen är nycklar och värdena är markerade
       const markedDatesObj = {};
       data.forEach((date) => {
         markedDatesObj[date] = { marked: true };
       });
 
-      // Uppdatera state för markerade datumen
       setMarkedDates(markedDatesObj);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -106,6 +110,7 @@ const CalendarComponent = () => {
           placeholder="Meal"
         />
         <Button title="Save" onPress={saveData} />
+        <Button title="My Profile" onPress={navigateToProfile} />
       </View>
     </View>
   );
