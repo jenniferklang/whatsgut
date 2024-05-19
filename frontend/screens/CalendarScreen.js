@@ -30,10 +30,12 @@ const CalendarComponent = () => {
         "http://192.168.1.82:3000/api/dates-with-entries"
       );
       const data = await response.json();
+      console.log("Fetched dates:", data); // Log fetched dates
 
       const markedDatesObj = {};
       data.forEach((date) => {
-        markedDatesObj[date] = { marked: true };
+        const formattedDate = formatDate(date);
+        markedDatesObj[formattedDate] = { marked: true };
       });
 
       setMarkedDates(markedDatesObj);
@@ -49,6 +51,7 @@ const CalendarComponent = () => {
   const saveData = async () => {
     try {
       const formattedDate = formatDate(logData.date);
+      console.log("Formatted Date: ", formattedDate); // Check the formatted date
 
       const response = await fetch("http://192.168.1.82:3000/api/add-entry", {
         method: "POST",
@@ -63,8 +66,17 @@ const CalendarComponent = () => {
       const data = await response.json();
       console.log("Data saved:", data);
 
-      setMarkedDates({ ...markedDates, [formattedDate]: { marked: true } });
+      // Update markedDates state with the new marked date
+      setMarkedDates((prevDates) => {
+        const updatedDates = {
+          ...prevDates,
+          [formattedDate]: { marked: true },
+        };
+        console.log("Updated marked dates:", updatedDates); // Check updated dates
+        return updatedDates;
+      });
 
+      // Clear the input fields
       setLogData({
         id: 0,
         entry_id: 0,
@@ -79,8 +91,15 @@ const CalendarComponent = () => {
   };
 
   const formatDate = (date) => {
+    // If necessary, convert date to the correct format
+    // Example: return new Date(date).toISOString().split('T')[0];
     return date;
   };
+
+  // Log markedDates every time it updates
+  useEffect(() => {
+    console.log("Marked dates updated:", markedDates);
+  }, [markedDates]);
 
   return (
     <View style={styles.container}>
@@ -88,7 +107,7 @@ const CalendarComponent = () => {
         onDayPress={(day) => {
           handleChange("date", day.dateString);
         }}
-        markedDates={markedDates}
+        markedDates={markedDates} // Use markedDates to mark the dates
       />
       <View style={styles.formContainer}>
         <TextInput
