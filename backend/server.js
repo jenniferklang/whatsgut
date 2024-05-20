@@ -99,8 +99,6 @@ app.post("/api/add-entry", function (req, res) {
   );
 });
 
-// Rest of your routes...
-
 app.listen(port, function () {
   console.log(`Redo på http://localhost:${port}/`);
   console.log(`Connected to PostgreSQL database`);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
+import { View, TextInput, Button, StyleSheet, ScrollView } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { useNavigation } from "@react-navigation/native";
 
@@ -19,18 +19,23 @@ const CalendarComponent = () => {
     meal: "",
   });
   const [markedDates, setMarkedDates] = useState({});
+  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
+    const fetchData = async () => {
+      await fetchMarkedDates();
+    };
+
     fetchData();
   }, []);
 
-  const fetchData = async () => {
+  const fetchMarkedDates = async () => {
     try {
       const response = await fetch(
         "http://192.168.1.82:3000/api/dates-with-entries"
       );
       const data = await response.json();
-      console.log("Fetched dates:", data); // Log fetched dates
+      console.log("Fetched dates:", data);
 
       const markedDatesObj = {};
       data.forEach((date) => {
@@ -51,7 +56,7 @@ const CalendarComponent = () => {
   const saveData = async () => {
     try {
       const formattedDate = formatDate(logData.date);
-      console.log("Formatted Date: ", formattedDate); // Check the formatted date
+      console.log("Formatted Date: ", formattedDate);
 
       const response = await fetch("http://192.168.1.82:3000/api/add-entry", {
         method: "POST",
@@ -66,17 +71,11 @@ const CalendarComponent = () => {
       const data = await response.json();
       console.log("Data saved:", data);
 
-      // Update markedDates state with the new marked date
-      setMarkedDates((prevDates) => {
-        const updatedDates = {
-          ...prevDates,
-          [formattedDate]: { marked: true },
-        };
-        console.log("Updated marked dates:", updatedDates); // Check updated dates
-        return updatedDates;
-      });
+      setMarkedDates((prevDates) => ({
+        ...prevDates,
+        [formattedDate]: { marked: true },
+      }));
 
-      // Clear the input fields
       setLogData({
         id: 0,
         entry_id: 0,
@@ -85,29 +84,30 @@ const CalendarComponent = () => {
         symptoms: "",
         meal: "",
       });
+
+      await fetchMarkedDates();
     } catch (error) {
       console.error("Error saving data:", error);
     }
   };
 
   const formatDate = (date) => {
-    // If necessary, convert date to the correct format
-    // Example: return new Date(date).toISOString().split('T')[0];
     return date;
   };
 
-  // Log markedDates every time it updates
   useEffect(() => {
     console.log("Marked dates updated:", markedDates);
   }, [markedDates]);
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Calendar
         onDayPress={(day) => {
+          setSelectedDate(day.dateString);
           handleChange("date", day.dateString);
         }}
-        markedDates={markedDates} // Use markedDates to mark the dates
+        markedDates={markedDates}
+        dotStyle={{ backgroundColor: "red" }}
       />
       <View style={styles.formContainer}>
         <TextInput
@@ -131,17 +131,17 @@ const CalendarComponent = () => {
         <Button title="Save" onPress={saveData} />
         <Button title="My Profile" onPress={navigateToProfile} />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
+    padding: 10,
   },
   formContainer: {
-    flex: 1,
-    padding: 10,
+    marginTop: 20,
   },
   input: {
     height: 40,

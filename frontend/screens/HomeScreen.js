@@ -1,12 +1,26 @@
 import React, { useState } from "react";
-import { ScrollView, Image, StyleSheet, View, Dimensions } from "react-native";
+import {
+  ScrollView,
+  Image,
+  StyleSheet,
+  View,
+  Dimensions,
+  Text,
+} from "react-native";
+// import { Vibration } from "react-native";
 
 const { width } = Dimensions.get("window");
 
 const images = [
-  require("../assets/image5.jpeg"),
-  require("../assets/image5.jpeg"),
-  require("../assets/image5.jpeg"),
+  { source: require("../assets/symptoms.jpg"), text: "Track your symptoms" },
+  {
+    source: require("../assets/food.jpg"),
+    text: "Take notes of your triggers \ndirectly into the calendar",
+  },
+  {
+    source: require("../assets/happyagain.jpg"),
+    text: "Do you want to stop thinking\n about your stomach all the time? \n\nGet started to se\n whats up with your gut!",
+  },
 ];
 
 const App = () => {
@@ -14,8 +28,11 @@ const App = () => {
 
   const handleScroll = (event) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const currentIndex = Math.floor(contentOffsetX / width);
-    setCurrentIndex(currentIndex);
+    const newIndex = Math.floor(contentOffsetX / width);
+    if (newIndex !== currentIndex) {
+      // Vibration.vibrate(); // Trigger vibration
+      setCurrentIndex(newIndex);
+    }
   };
 
   return (
@@ -31,7 +48,8 @@ const App = () => {
       >
         {images.map((image, index) => (
           <View key={index} style={styles.imageContainer}>
-            <Image source={image} style={styles.image} />
+            <Image source={image.source} style={styles.image} />
+            <Text style={styles.imageText}>{image.text}</Text>
           </View>
         ))}
       </ScrollView>
@@ -70,6 +88,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     margin: 10,
   },
+
   pagination: {
     flexDirection: "row",
     position: "absolute",
@@ -82,6 +101,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#595959",
     borderRadius: 5,
     margin: 8,
+  },
+  imageText: {
+    fontSize: 18,
+    marginTop: 10,
+    color: "#333", // Mörkgrå färg
+    textAlign: "center",
+    fontFamily: "Arial", // Exempel på anpassat typsnitt
   },
 });
 
