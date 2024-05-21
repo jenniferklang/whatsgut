@@ -7,19 +7,30 @@ import {
   Dimensions,
   Text,
 } from "react-native";
-// import { Vibration } from "react-native";
 
 const { width } = Dimensions.get("window");
 
 const images = [
-  { source: require("../assets/symptoms.jpg"), text: "Track your symptoms" },
   {
-    source: require("../assets/food.jpg"),
-    text: "Take notes of your triggers \ndirectly into the calendar",
+    source: require("../assets/notes.jpg"),
+    text: "Take notes of your symptoms \ndirectly into the calendar",
+    title: "Notes",
+    overlayTitle: "Whatsgut",
+  },
+  {
+    source: require("../assets/food2.jpg"),
+    text: "Track your triggers",
+    title: "Food and Triggers",
+  },
+  {
+    source: require("../assets/training.jpg"),
+    text: "Find the exercise that suits you\nto strengthen your body",
+    title: "Training",
   },
   {
     source: require("../assets/happyagain.jpg"),
-    text: "Do you want to stop thinking\n about your stomach all the time? \n\nGet started to se\n whats up with your gut!",
+    text: "Do you want to stop thinking\nabout your stomach all the time?\n\nGet started to see\nwhats up with your gut!",
+    title: "Feel Happy Again",
   },
 ];
 
@@ -30,13 +41,15 @@ const App = () => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.floor(contentOffsetX / width);
     if (newIndex !== currentIndex) {
-      // Vibration.vibrate(); // Trigger vibration
       setCurrentIndex(newIndex);
     }
   };
 
   return (
     <View style={styles.container}>
+      <View style={styles.overlayContainer}>
+        <Text style={styles.overlayTitle}>{images[0].overlayTitle}</Text>
+      </View>
       <ScrollView
         horizontal
         pagingEnabled
@@ -47,9 +60,12 @@ const App = () => {
         style={styles.scrollView}
       >
         {images.map((image, index) => (
-          <View key={index} style={styles.imageContainer}>
+          <View key={index} style={styles.slide}>
             <Image source={image.source} style={styles.image} />
-            <Text style={styles.imageText}>{image.text}</Text>
+            <View style={styles.textContainer}>
+              <Text style={styles.titleText}>{image.title}</Text>
+              <Text style={styles.imageText}>{image.text}</Text>
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -68,7 +84,7 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5fcff",
+    backgroundColor: "#e8cec1",
   },
   scrollView: {
     flex: 1,
@@ -77,18 +93,46 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  imageContainer: {
+  slide: {
+    width,
     justifyContent: "center",
     alignItems: "center",
-    width,
   },
   image: {
     width: 300,
-    height: 300,
+    height: 400,
     borderRadius: 20,
     margin: 10,
   },
-
+  overlayContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    padding: 10,
+    zIndex: 1,
+  },
+  overlayTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "black",
+    textAlign: "center",
+  },
+  textContainer: {
+    alignItems: "flex-start",
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  titleText: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "black",
+  },
+  imageText: {
+    fontSize: 18,
+    color: "#333",
+  },
   pagination: {
     flexDirection: "row",
     position: "absolute",
@@ -101,13 +145,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#595959",
     borderRadius: 5,
     margin: 8,
-  },
-  imageText: {
-    fontSize: 18,
-    marginTop: 10,
-    color: "#333", // Mörkgrå färg
-    textAlign: "center",
-    fontFamily: "Arial", // Exempel på anpassat typsnitt
   },
 });
 

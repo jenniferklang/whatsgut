@@ -48,8 +48,8 @@ const App = () => {
           },
           tabBarStyle: styles.tabBar,
           tabBarLabelStyle: styles.tabBarLabel,
-          tabBarActiveTintColor: "#467685",
-          tabBarInactiveTintColor: "grey",
+          tabBarActiveTintColor: "rgba(50, 50, 50, 50)",
+          tabBarInactiveTintColor: "rgba(50, 50, 50, 0.8)",
           headerShown: false,
         })}
       >

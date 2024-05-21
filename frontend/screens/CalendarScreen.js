@@ -32,7 +32,7 @@ const CalendarComponent = () => {
   const fetchMarkedDates = async () => {
     try {
       const response = await fetch(
-        "http://192.168.1.82:3000/api/dates-with-entries"
+        "http://10.3.236.190:3000/api/dates-with-entries"
       );
       const data = await response.json();
       console.log("Fetched dates:", data);
@@ -58,7 +58,7 @@ const CalendarComponent = () => {
       const formattedDate = formatDate(logData.date);
       console.log("Formatted Date: ", formattedDate);
 
-      const response = await fetch("http://192.168.1.82:3000/api/add-entry", {
+      const response = await fetch("http://10.3.236.190:3000/api/add-entry", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 10,
+    backgroundColor: "#e8cec1",
   },
   formContainer: {
     marginTop: 20,
