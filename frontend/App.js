@@ -1,46 +1,41 @@
-import * as React from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
-
+import RefreshableScreen from "./screens/RefreshableScreen";
 import HomeScreen from "./screens/HomeScreen";
-// import DetailsScreen from "./screens/DetailsScreen";
 import CalendarScreen from "./screens/CalendarScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import ExerciseScreen from "./screens/ExerciseScreen";
 import MyProfileScreen from "./screens/MyProfileScreen";
 import styles from "./AppStyles";
 
-const homeName = "Home";
-// const detailsName = "Details";
-const calendarName = "Calendar";
-const settingsName = "Settings";
-const exerciseName = "Exercise";
-const myprofileName = "MyProfile";
-
 const Tab = createBottomTabNavigator();
 
 const App = () => {
+  const onRefresh = async () => {
+    // Hämta ny data här
+    // Exempel: await fetchData();
+  };
+
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName={homeName}
+        initialRouteName="Home"
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
-            let rn = route.name;
+            const routeName = route.name;
 
-            if (rn === homeName) {
+            if (routeName === "Home") {
               iconName = focused ? "home" : "home-outline";
-              // } else if (rn === detailsName) {
-              //   iconName = focused ? "list" : "list-outline";
-            } else if (rn === calendarName) {
+            } else if (routeName === "Calendar") {
               iconName = focused ? "calendar" : "calendar-outline";
-            } else if (rn === settingsName) {
+            } else if (routeName === "Settings") {
               iconName = focused ? "settings" : "settings-outline";
-            } else if (rn === exerciseName) {
+            } else if (routeName === "Exercise") {
               iconName = focused ? "barbell" : "barbell-outline";
-            } else if (rn === myprofileName) {
+            } else if (routeName === "MyProfile") {
               iconName = focused ? "person-circle" : "person-circle-outline";
             }
 
@@ -53,12 +48,41 @@ const App = () => {
           headerShown: false,
         })}
       >
-        <Tab.Screen name={homeName} component={HomeScreen} />
-        <Tab.Screen name={exerciseName} component={ExerciseScreen} />
-        <Tab.Screen name={calendarName} component={CalendarScreen} />
-        <Tab.Screen name={settingsName} component={SettingsScreen} />
-        {/* <Tab.Screen name={detailsName} component={DetailsScreen} /> */}
-        <Tab.Screen name={myprofileName} component={MyProfileScreen} />
+        <Tab.Screen name="Home">
+          {() => (
+            <RefreshableScreen onRefresh={onRefresh}>
+              <HomeScreen />
+            </RefreshableScreen>
+          )}
+        </Tab.Screen>
+        <Tab.Screen name="Exercise">
+          {() => (
+            <RefreshableScreen onRefresh={onRefresh}>
+              <ExerciseScreen />
+            </RefreshableScreen>
+          )}
+        </Tab.Screen>
+        <Tab.Screen name="Calendar">
+          {() => (
+            <RefreshableScreen onRefresh={onRefresh}>
+              <CalendarScreen />
+            </RefreshableScreen>
+          )}
+        </Tab.Screen>
+        <Tab.Screen name="Settings">
+          {() => (
+            <RefreshableScreen onRefresh={onRefresh}>
+              <SettingsScreen />
+            </RefreshableScreen>
+          )}
+        </Tab.Screen>
+        <Tab.Screen name="MyProfile">
+          {() => (
+            <RefreshableScreen onRefresh={onRefresh}>
+              <MyProfileScreen />
+            </RefreshableScreen>
+          )}
+        </Tab.Screen>
       </Tab.Navigator>
     </NavigationContainer>
   );

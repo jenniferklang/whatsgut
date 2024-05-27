@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: "100%",
     backgroundColor: "rgba(255, 255, 255, 0.6)",
-    padding: 10,
+    padding: 20,
     zIndex: 1,
   },
   overlayTitle: {
@@ -125,12 +125,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   titleText: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     color: "black",
   },
   imageText: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#333",
   },
   pagination: {

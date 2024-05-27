@@ -1,85 +1,66 @@
-// import React from "react";
-// import { View, Text } from "react-native";
+import React, { useState } from "react";
+import { View, Text, Dimensions, StyleSheet } from "react-native";
+import { LineChart } from "react-native-chart-kit";
 
-// const MyProfileScreen = () => {
-//   return (
-//     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-//       <Text>My Profile</Text>
-//     </View>
-//   );
-// };
+// Fejkad profilkomponent
+const ProfileHeader = () => {
+  return (
+    <View style={styles.profileContainer}>
+      <Text style={styles.profileText}>Namn: John Doe</Text>
+      <Text style={styles.profileText}>Ålder: 30</Text>
+      <Text style={styles.profileText}>Kön: Man</Text>
+      <Text style={styles.profileText}>Stad: Stockholm</Text>
+    </View>
+  );
+};
 
-// export default MyProfileScreen;
+const SymptomTracker = () => {
+  const [logData, setLogData] = useState({
+    id: 0,
+    entry_id: 0,
+    date: "",
+    content: "",
+    symptoms: [],
+    meal: "",
+  });
 
-import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
-import { PieChart } from "react-native-svg-charts";
-import { G, Line } from "react-native-svg";
+  const data = {
+    labels: ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"],
+    datasets: [{ data: [0, 0, 0, 0, 0, 0, 0] }],
+  };
 
-const DonutChart = () => {
-  const data = [
-    {
-      key: 1,
-      value: 12,
-      svg: { fill: "#56cfe1" },
-      arc: { outerRadius: "100%", innerRadius: "60%" },
-    },
-    {
-      key: 2,
-      value: 19,
-      svg: { fill: "#00a896" },
-      arc: { outerRadius: "100%", innerRadius: "60%" },
-    },
-    {
-      key: 3,
-      value: 3,
-      svg: { fill: "#80ffdb" },
-      arc: { outerRadius: "100%", innerRadius: "60%" },
-    },
-  ];
-
-  const Labels = ({ slices }) => {
-    return slices.map((slice, index) => {
-      const { labelCentroid, data } = slice;
-      return (
-        <G key={index}>
-          <Line
-            x1={labelCentroid[0]}
-            y1={labelCentroid[1]}
-            x2={labelCentroid[0]}
-            y2={labelCentroid[1] - 10}
-            stroke={"black"}
-          />
-          <Text
-            x={labelCentroid[0]}
-            y={labelCentroid[1] - 10}
-            fill={"black"}
-            textAnchor={"middle"}
-            alignmentBaseline={"middle"}
-            fontSize={14}
-            stroke={"black"}
-            strokeWidth={0.2}
-          >
-            {data.value}
-          </Text>
-        </G>
-      );
+  const updateSymptomData = () => {
+    const newData = [...data.datasets[0].data];
+    const symptomCounts = Object.values(logData.symptoms);
+    symptomCounts.forEach((count, index) => {
+      newData[index] = count || 0;
     });
+    return newData;
+  };
+
+  const screenWidth = Dimensions.get("window").width;
+
+  const chartConfig = {
+    backgroundGradientFrom: "#ffffff",
+    backgroundGradientTo: "#ffffff",
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    strokeWidth: 2,
+    barPercentage: 0.7,
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Symptoms chart</Text>
-      <PieChart
-        style={{ height: 220, width: Dimensions.get("window").width - 40 }}
-        valueAccessor={({ item }) => item.value}
-        data={data}
-        spacing={0}
-        outerRadius={"100%"}
-        animationduration={500}
-      >
-        <Labels />
-      </PieChart>
+      <ProfileHeader />
+      <LineChart
+        data={{
+          labels: data.labels,
+          datasets: [{ data: updateSymptomData() }],
+        }}
+        width={screenWidth * 0.9}
+        height={220}
+        chartConfig={chartConfig}
+        style={{ borderRadius: 16 }}
+      />
     </View>
   );
 };
@@ -87,23 +68,20 @@ const DonutChart = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#e8cec1",
-    padding: 20,
-    borderRadius: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    justifyContent: "center",
+    paddingTop: 50,
   },
-  title: {
+  profileContainer: {
+    backgroundColor: "#f0f0f0",
+    padding: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  profileText: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#333",
+    marginBottom: 5,
   },
 });
 
-export default DonutChart;
+export default SymptomTracker;

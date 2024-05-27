@@ -82,18 +82,39 @@ app.post("/api/add-entry", function (req, res) {
   var { date, content, symptoms, meal } = req.body;
   var userId = 1;
   console.log("Received data:", { date, content, symptoms, meal });
+
+  // Konvertera symptoms till en JSON-sträng
+  var symptomsJson = JSON.stringify(symptoms);
+
   client.query(
     `
       INSERT INTO entries (user_id, entry_date, content, symptoms, meal)
       VALUES ($1, $2, $3, $4, $5);
     `,
-    [userId, date, content, symptoms, meal],
+    [userId, date, content, symptomsJson, meal],
     function (error) {
       if (error) {
         console.error("Error executing SQL query", error);
         res.status(500).json({ error: "Internal Server Error" });
       } else {
         res.status(201).json({ message: "Loggposten har lagts till" });
+      }
+    }
+  );
+});
+app.get("/api/symptoms", function (req, res) {
+  client.query(
+    `
+      SELECT DISTINCT symptoms
+      FROM entries;
+    `,
+    function (error, result) {
+      if (error) {
+        console.error("Error executing SQL query", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      } else {
+        var symptoms = result.rows.map((entry) => entry.symptoms);
+        res.json(symptoms);
       }
     }
   );

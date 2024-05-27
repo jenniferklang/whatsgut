@@ -14,6 +14,12 @@ export default StyleSheet.create({
   tabBarLabel: {
     paddingBottom: 10,
     fontSize: 10,
-    color: "rgba(50, 50, 50, 0.9)", // Mjuk svart färg med 60% opacitet
+    color: "rgba(50, 50, 50, 0.9)",
+
+    text: {
+      fontFamily:
+        'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"',
+      fontSize: 16,
+    },
   },
 });
