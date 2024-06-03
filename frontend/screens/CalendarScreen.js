@@ -7,9 +7,9 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import { TextInput, Button } from "react-native-paper";
 import { Calendar } from "react-native-calendars";
 import Icon from "react-native-vector-icons/Ionicons";
+import { Button, TextInput } from "react-native-paper";
 
 const MyCalendar = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -19,13 +19,13 @@ const MyCalendar = () => {
     entry_id: 0,
     date: "",
     content: "",
-    symptoms: [],
+    symptoms: "",
     meal: "",
   });
   const [markedDates, setMarkedDates] = useState({});
   const [logsForSelectedDate, setLogsForSelectedDate] = useState([]);
+  const [selectedLog, setSelectedLog] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
-
   const symptomsList = ["Heartburn", "Chest Pain", "Bloating"];
 
   useEffect(() => {
@@ -37,9 +37,8 @@ const MyCalendar = () => {
         const markedDatesObj = data.reduce((acc, log) => {
           const dateObject = new Date(log.entry_date);
           if (!isNaN(dateObject.getTime())) {
-            const formattedDate = dateObject.toISOString().slice(0, 10);
-            // YYYY - MM - DD;
-            acc[formattedDate] = { marked: true, dotColor: "blue" };
+            const formattedDate = dateObject.toISOString().slice(0, 10); // YYYY-MM-DD
+            acc[formattedDate] = { marked: true, dotColor: "black" };
           }
           return acc;
         }, {});
@@ -53,16 +52,46 @@ const MyCalendar = () => {
     fetchData();
   }, []);
 
-  const handleDateSelect = (date) => {
+  const handleDateSelect = async (date) => {
+    setSelectedDate(date);
+    setLogModalVisible(true);
+    setLogData((prevData) => ({ ...prevData, date: date }));
+    try {
+      const response = await fetch(
+        `http://192.168.1.82:3000/api/logs?date=${date}`
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Network response was not ok: ${response.status} ${errorText}`
+        );
+      }
+      const data = await response.json();
+      setLogsForSelectedDate(data);
+    } catch (error) {
+      console.error("Error fetching logs for selected date:", error);
+    }
+  };
+
+  const handleBackToCalendar = () => {
+    setLogModalVisible(false);
+  };
+
+  const handleNewNote = () => {
     setLogData((prevData) => ({
       ...prevData,
-      date: date,
+      date: selectedDate,
     }));
-    setSelectedDate(date);
+    setLogModalVisible(false);
     setModalVisible(true);
   };
 
   const handleFormSubmit = async () => {
+    if (!logData.date) {
+      console.error("Date is required");
+      return;
+    }
+
     try {
       const response = await fetch("http://192.168.1.82:3000/api/add-entry", {
         method: "POST",
@@ -96,48 +125,139 @@ const MyCalendar = () => {
     }
   };
 
-  const handleShowLogs = async () => {
+  const toggleSymptom = (symptom) => {
+    const updatedSymptoms = logData.symptoms === symptom ? "" : symptom;
+    setLogData((prevData) => ({ ...prevData, symptoms: updatedSymptoms }));
+  };
+
+  const handleDeleteLog = async (entryId) => {
     try {
       const response = await fetch(
-        `http://192.168.1.82:3000/api/logs?date=${selectedDate}`
+        `http://192.168.1.82:3000/api/delete-entry/${entryId}`,
+        {
+          method: "DELETE",
+        }
       );
-      const data = await response.json();
-      setLogsForSelectedDate(data);
-      setLogModalVisible(true);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `Network response was not ok: ${response.status} ${errorText}`
+        );
+      }
+
+      setLogsForSelectedDate((prevLogs) =>
+        prevLogs.filter((log) => log.entry_id !== entryId)
+      );
+
+      if (logsForSelectedDate.length === 1) {
+        const { [selectedDate]: _, ...remainingMarkedDates } = markedDates;
+        setMarkedDates(remainingMarkedDates);
+      }
+
+      setSelectedLog(null);
     } catch (error) {
-      console.error("Error fetching logs for selected date:", error);
+      console.error("Error deleting log:", error);
     }
-  };
-
-  const toggleSymptom = (symptom) => {
-    setLogData((prevData) => {
-      const symptoms = prevData.symptoms.includes(symptom)
-        ? prevData.symptoms.filter((s) => s !== symptom)
-        : [...prevData.symptoms, symptom];
-      return { ...prevData, symptoms };
-    });
-  };
-
-  const handleBackToCalendar = () => {
-    setModalVisible(false);
   };
 
   return (
     <View style={styles.container}>
       <Calendar
+        style={{
+          width: 325,
+          borderRadius: 10,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 5,
+          paddingBottom: 20,
+        }}
         onDayPress={(day) => handleDateSelect(day.dateString)}
         markedDates={markedDates}
+        theme={{
+          calendarBackground: "#ffffff",
+          textSectionTitleColor: "#b6c1cd",
+          selectedDayBackgroundColor: "#00adf5",
+          selectedDayTextColor: "#ffffff",
+          todayTextColor: "#00adf5",
+          dayTextColor: "#2d4150",
+          textDisabledColor: "#d9e1e8",
+          dotColor: "black",
+          selectedDotColor: "#ffffff",
+          arrowColor: "black",
+          disabledArrowColor: "#d9e1e8",
+          monthTextColor: "black",
+          indicatorColor: "black",
+          textDayFontSize: 18,
+          textMonthFontSize: 20,
+          textDayHeaderFontSize: 16,
+          textDayFontWeight: "400",
+          textMonthFontWeight: "400",
+        }}
       />
+
+      <Modal visible={logModalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.dateText}>{selectedDate}</Text>
+            <ScrollView>
+              {logsForSelectedDate.map((log, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.logItemContainer,
+                    selectedLog === log.entry_id && styles.logItemSelected,
+                  ]}
+                  onPress={() => setSelectedLog(log.entry_id)}
+                >
+                  <Text style={styles.logText}>Content: {log.content}</Text>
+                  <Text style={styles.logText}>
+                    Symptoms:
+                    {log.symptoms ? log.symptoms : "No symptoms recorded"}
+                  </Text>
+                  <Text style={styles.logText}>Meal: {log.meal}</Text>
+                  {selectedLog === log.entry_id && (
+                    <TouchableOpacity
+                      style={styles.deleteButton}
+                      onPress={() => handleDeleteLog(log.entry_id)}
+                    >
+                      <Text style={styles.deleteButtonText}>Delete</Text>
+                    </TouchableOpacity>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={handleBackToCalendar}
+              >
+                <Icon name="arrow-back" size={30} color="black" />
+              </TouchableOpacity>
+              <Text style={{ marginLeft: 150, marginTop: 7, fontSize: 16 }}>
+                New Note
+              </Text>
+              <TouchableOpacity
+                style={styles.forwardButton}
+                onPress={handleNewNote}
+              >
+                <Icon name="arrow-forward" size={30} color="black" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <Modal visible={modalVisible} animationType="slide" transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
+            <Text style={styles.dateText}>{selectedDate}</Text>
             <TouchableOpacity
               style={styles.backButton}
-              onPress={handleBackToCalendar}
-            >
-              <Icon name="arrow-back" size={30} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.dateText}>{selectedDate}</Text>
+              onPress={() => setModalVisible(false)}
+            ></TouchableOpacity>
             <TextInput
               label="How are you today?"
               value={logData.content}
@@ -156,7 +276,7 @@ const MyCalendar = () => {
                   key={index}
                   style={[
                     styles.symptomButton,
-                    logData.symptoms.includes(symptom) &&
+                    logData.symptoms === symptom &&
                       styles.symptomButtonSelected,
                   ]}
                   onPress={() => toggleSymptom(symptom)}
@@ -164,7 +284,7 @@ const MyCalendar = () => {
                   <Text
                     style={[
                       styles.symptomButtonText,
-                      logData.symptoms.includes(symptom) &&
+                      logData.symptoms === symptom &&
                         styles.symptomButtonTextSelected,
                     ]}
                   >
@@ -179,41 +299,19 @@ const MyCalendar = () => {
                 mode="outlined"
                 onPress={handleFormSubmit}
                 style={styles.button}
-                labelStyle={{ color: "svart" }}
+                labelStyle={{ color: "black" }}
               >
                 Save log
               </Button>
               <Button
                 mode="outlined"
-                onPress={handleShowLogs}
+                onPress={() => setModalVisible(false)}
                 style={styles.button}
-                labelStyle={{ color: "svart" }}
+                labelStyle={{ color: "black" }}
               >
-                Show Logs
+                Cancel
               </Button>
             </View>
-          </View>
-        </View>
-      </Modal>
-      <Modal visible={logModalVisible} animationType="slide" transparent={true}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <ScrollView>
-              {logsForSelectedDate.map((log, index) => (
-                <View key={index} style={styles.logItemContainer}>
-                  <Text style={styles.logText}>Content: {log.content}</Text>
-                  <Text style={styles.logText}>Symptoms: {log.symptoms}</Text>
-                  <Text style={styles.logText}>Meal: {log.meal}</Text>
-                </View>
-              ))}
-            </ScrollView>
-            <Button
-              mode="outlined"
-              onPress={() => setLogModalVisible(false)}
-              style={styles.button}
-            >
-              Close
-            </Button>
           </View>
         </View>
       </Modal>
@@ -224,7 +322,9 @@ const MyCalendar = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: "#e8cec1",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalOverlay: {
     flex: 1,
@@ -242,10 +342,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 20,
   },
-  input: {
-    marginBottom: 10,
-    backgroundColor: "white",
-  },
   symptomsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -260,7 +356,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   symptomButtonSelected: {
-    backgroundColor: "lightblue",
+    backgroundColor: "lightgray",
   },
   symptomButtonText: {
     color: "black",
@@ -276,6 +372,7 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     marginHorizontal: 5,
+    marginBottom: 12,
   },
   backButton: {
     flexDirection: "row",
@@ -284,9 +381,31 @@ const styles = StyleSheet.create({
   },
   logItemContainer: {
     marginBottom: 10,
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "gray",
+    backgroundColor: "white",
+  },
+  logItemSelected: {
+    backgroundColor: "lightgray",
   },
   logText: {
     fontSize: 16,
+  },
+  deleteButton: {
+    marginTop: 10,
+    padding: 5,
+    backgroundColor: "red",
+    borderRadius: 5,
+  },
+  deleteButtonText: {
+    color: "white",
+    textAlign: "center",
+  },
+  input: {
+    backgroundColor: "white",
+    marginBottom: 12,
   },
 });
 

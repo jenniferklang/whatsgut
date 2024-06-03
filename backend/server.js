@@ -83,7 +83,6 @@ app.post("/api/add-entry", function (req, res) {
   var userId = 1;
   console.log("Received data:", { date, content, symptoms, meal });
 
-  // Konvertera symptoms till en JSON-sträng
   var symptomsJson = JSON.stringify(symptoms);
 
   client.query(

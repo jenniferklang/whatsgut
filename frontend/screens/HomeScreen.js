@@ -15,11 +15,11 @@ const images = [
     source: require("../assets/notes.jpg"),
     text: "Take notes of your symptoms \ndirectly into the calendar",
     title: "Notes",
-    overlayTitle: "Whatsgut",
+    overlaySubtitle: "What's up\nwith your gut?",
   },
   {
     source: require("../assets/food2.jpg"),
-    text: "Track your triggers",
+    text: "Track your triggers and identify\nthe foods that cause symptoms",
     title: "Food and Triggers",
   },
   {
@@ -29,7 +29,7 @@ const images = [
   },
   {
     source: require("../assets/happyagain.jpg"),
-    text: "Do you want to stop thinking\nabout your stomach all the time?\n\nGet started to see\nwhats up with your gut!",
+    text: "Do you want to stop thinking\nabout your stomach all the time?",
     title: "Feel Happy Again",
   },
 ];
@@ -63,6 +63,11 @@ const App = () => {
           <View key={index} style={styles.slide}>
             <Image source={image.source} style={styles.image} />
             <View style={styles.textContainer}>
+              {index === 0 && (
+                <Text style={styles.overlaySubtitle}>
+                  {image.overlaySubtitle}
+                </Text>
+              )}
               <Text style={styles.titleText}>{image.title}</Text>
               <Text style={styles.imageText}>{image.text}</Text>
             </View>
@@ -92,46 +97,64 @@ const styles = StyleSheet.create({
   scrollViewContent: {
     justifyContent: "center",
     alignItems: "center",
+    paddingTop: 40,
   },
   slide: {
     width,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#e8cec1",
   },
   image: {
     width: 300,
-    height: 400,
+    height: 390,
     borderRadius: 20,
     margin: 10,
   },
-  overlayContainer: {
+  // overlayContainer: {
+  //   position: "absolute",
+  //   top: 0,
+  //   left: 0,
+  //   width: "100%",
+  //   backgroundColor: "rgba(255, 255, 255, 0.6)",
+  //   padding: 15,
+  //   zIndex: 1,
+  // },
+  // overlayTitle: {
+  //   fontSize: 20,
+  //   fontWeight: "bold",
+  //   color: "black",
+  //   textAlign: "center",
+  //   textTransform: "uppercase",
+  //   left: 0,
+  //   right: 0,
+  //   transform: [{ translateY: -1 }], // Flytta upp eller ner beroende på behov
+  //   paddingTop: 15,
+  // },
+  overlaySubtitle: {
     position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
-    padding: 20,
-    zIndex: 1,
-  },
-  overlayTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
+    bottom: 200, // Flytta till botten av bilden
+    left: 80,
+    fontSize: 20,
     color: "black",
-    textAlign: "center",
+    padding: 10,
+    borderRadius: 10,
+    fontWeight: "700",
   },
   textContainer: {
     alignItems: "flex-start",
     paddingHorizontal: 20,
-    marginTop: 10,
+    marginTop: 5,
   },
   titleText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "black",
   },
   imageText: {
     fontSize: 16,
     color: "#333",
+    fontWeight: "500",
   },
   pagination: {
     flexDirection: "row",

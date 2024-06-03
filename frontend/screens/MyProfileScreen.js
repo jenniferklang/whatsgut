@@ -1,87 +1,138 @@
 import React, { useState } from "react";
-import { View, Text, Dimensions, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Modal,
+  ScrollView,
+} from "react-native";
 import { LineChart } from "react-native-chart-kit";
 
-// Fejkad profilkomponent
-const ProfileHeader = () => {
-  return (
-    <View style={styles.profileContainer}>
-      <Text style={styles.profileText}>Namn: John Doe</Text>
-      <Text style={styles.profileText}>Ålder: 30</Text>
-      <Text style={styles.profileText}>Kön: Man</Text>
-      <Text style={styles.profileText}>Stad: Stockholm</Text>
-    </View>
-  );
+const chartConfig = {
+  backgroundGradientFrom: "#FFF",
+  backgroundGradientTo: "#FFF",
+  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  strokeWidth: 3,
+  barPercentage: 0.7,
+  decimalPlaces: 0,
 };
 
-const SymptomTracker = () => {
-  const [logData, setLogData] = useState({
-    id: 0,
-    entry_id: 0,
-    date: "",
-    content: "",
-    symptoms: [],
-    meal: "",
-  });
+const MyProfile = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState("May");
 
-  const data = {
-    labels: ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"],
-    datasets: [{ data: [0, 0, 0, 0, 0, 0, 0] }],
-  };
+  const symptomData = [
+    { symptom: "Heartburn", value: 7 },
+    { symptom: "Chest Pain", value: 1 },
+    { symptom: "Bloating", value: 9 },
+  ];
 
-  const updateSymptomData = () => {
-    const newData = [...data.datasets[0].data];
-    const symptomCounts = Object.values(logData.symptoms);
-    symptomCounts.forEach((count, index) => {
-      newData[index] = count || 0;
-    });
-    return newData;
-  };
-
-  const screenWidth = Dimensions.get("window").width;
-
-  const chartConfig = {
-    backgroundGradientFrom: "#ffffff",
-    backgroundGradientTo: "#ffffff",
-    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-    strokeWidth: 2,
-    barPercentage: 0.7,
+  const handleMonthSelect = (month) => {
+    setSelectedMonth(month);
+    setShowModal(true);
   };
 
   return (
-    <View style={styles.container}>
-      <ProfileHeader />
-      <LineChart
-        data={{
-          labels: data.labels,
-          datasets: [{ data: updateSymptomData() }],
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: "#e8cec1",
+        justifyContent: "center",
+        paddingLeft: 30,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          backgroundColor: "#e8cec1",
+          alignItems: "center",
+          marginTop: 90,
         }}
-        width={screenWidth * 0.9}
-        height={220}
-        chartConfig={chartConfig}
-        style={{ borderRadius: 16 }}
-      />
+      >
+        <TouchableOpacity onPress={() => setShowModal(true)}>
+          <Image
+            source={require("../assets/food.jpg")}
+            style={{
+              width: 100,
+              height: 100,
+              borderRadius: 50,
+              marginRight: 20,
+            }}
+          />
+        </TouchableOpacity>
+        <View>
+          <Text style={{ fontSize: 20 }}>Name: Jane Doe</Text>
+          <Text style={{ fontSize: 16 }}>Occupation: Developer</Text>
+          <Text style={{ fontSize: 16 }}>City: Gothenburg</Text>
+        </View>
+      </View>
+      <Modal
+        visible={showModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 80,
+          }}
+        >
+          <TouchableOpacity onPress={() => setShowModal(false)}>
+            <Text style={{ fontSize: 20, marginLeft: 200 }}>Close</Text>
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginBottom: 20,
+              marginLeft: 200,
+            }}
+          >
+            {selectedMonth}
+          </Text>
+          <LineChart
+            data={{
+              labels: symptomData.map((data) => data.symptom),
+              datasets: [
+                {
+                  data: symptomData.map((data) => data.value),
+                },
+              ],
+            }}
+            width={300}
+            height={300}
+            chartConfig={chartConfig}
+            bezier
+            style={{ borderRadius: 16 }}
+          />
+        </View>
+      </Modal>
+      <ScrollView horizontal style={{ marginTop: 20 }}>
+        <TouchableOpacity
+          onPress={() => handleMonthSelect("May")}
+          style={{ paddingHorizontal: 10 }}
+        >
+          <Text style={{ fontSize: 16 }}>May</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleMonthSelect("June")}
+          style={{ paddingHorizontal: 10 }}
+        >
+          <Text style={{ fontSize: 16 }}>June</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handleMonthSelect("July")}
+          style={{ paddingHorizontal: 10 }}
+        >
+          <Text style={{ fontSize: 16 }}>July</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 50,
-  },
-  profileContainer: {
-    backgroundColor: "#f0f0f0",
-    padding: 20,
-    borderRadius: 10,
-    marginBottom: 20,
-  },
-  profileText: {
-    fontSize: 18,
-    marginBottom: 5,
-  },
-});
-
-export default SymptomTracker;
+export default MyProfile;
